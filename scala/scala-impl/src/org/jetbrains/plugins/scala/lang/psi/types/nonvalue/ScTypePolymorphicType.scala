@@ -25,14 +25,16 @@ final case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq
     ScSubstitutor.bind(typeParameters) { tp =>
       var contraVariant = 0
       var coOrInVariant = 0
+
       internalType.recursiveVarianceUpdate() {
         case (typez: ScType, v: Variance) =>
           val typeParamId = typez match {
-            case t: TypeParameterType => t.typeParamId
-            case UndefinedType(t, _) => t.typeParamId
+            case t: TypeParameterType    => t.typeParamId
+            case UndefinedType(t, _)     => t.typeParamId
             case ScAbstractType(t, _, _) => t.typeParamId
-            case _ => -1L
+            case _                       => -1L
           }
+
           if (typeParamId > 0) {
             if (tp.typeParamId == typeParamId) {
               if (v == Contravariant) contraVariant += 1
@@ -127,14 +129,6 @@ final case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq
       }
     }
   }
-
-  def typeParameterOrLowerSubstitutor: ScSubstitutor =
-    ScSubstitutor.bind(typeParameters) { tp =>
-      val lowerType: ScType = if (hasRecursiveTypeParameters(tp.lowerType)) Nothing else tp.lowerType
-
-      if (lowerType.equiv(Nothing)) TypeParameterType(tp)
-      else lowerType
-    }
 
   private lazy val typeParamIds = typeParameters.map(_.typeParamId).toSet
 
