@@ -447,16 +447,34 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
       )
     )
 
-  def testSCL17595(): Unit = assertNothing(
-    messages(
-      """
-        |trait A[Z] {
-        |  def bar()
-        |}
-        |trait B {
-        |  self: A[_] =>
-        |  override def bar(): Unit = { println("B.bar")}  // <<-- IJ is unhappy about `override` here
-        |}""".stripMargin
+  def testSCL17595(): Unit = {
+    assertNothing(
+      messages(
+        """
+          |trait A[Z] {
+          |  def bar()
+          |}
+          |trait B {
+          |  self: A[_] =>
+          |  override def bar(): Unit = { println("B.bar")}  // <<-- IJ is unhappy about `override` here
+          |}""".stripMargin
+      )
     )
-  )
+  }
+
+  // SCL-15361
+  def test_declaration_overrides_default(): Unit = {
+    assertNothing(
+      messages(
+        """
+          |trait Foo {
+          |  def foo: Int = 3
+          |}
+          |trait Bar extends Foo {
+          |  override def foo: Int
+          |}
+        """.stripMargin
+      )
+    )
+  }
 }

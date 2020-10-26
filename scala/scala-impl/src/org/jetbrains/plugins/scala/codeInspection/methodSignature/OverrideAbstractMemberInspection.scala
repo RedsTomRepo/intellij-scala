@@ -54,7 +54,7 @@ class OverrideAbstractMemberInspection extends AbstractRegisteredInspection {
   }
 
   private def isApplicable(superSignatures: Iterable[TermSignature]): Boolean =
-    superSignatures.nonEmpty && superSignatures.forall(!isConcreteTermSignature(_))
+    superSignatures.nonEmpty && superSignatures.forall(_.isAbstract)
 
   private def isApplicable(function: ScFunction): Boolean =
     !hasOverride(function) && isApplicable(function.superSignaturesIncludingSelfType)

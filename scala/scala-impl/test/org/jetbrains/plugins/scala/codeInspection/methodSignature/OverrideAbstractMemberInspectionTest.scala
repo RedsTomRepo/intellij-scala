@@ -4,7 +4,6 @@ package methodSignature
 
 import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
 
 class OverrideAbstractMemberInspectionTest extends ScalaQuickFixTestBase with ForceInspectionSeverity {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
@@ -383,6 +382,44 @@ class OverrideAbstractMemberInspectionTest extends ScalaQuickFixTestBase with Fo
         |  val fun: Int = 3
         |}
       """.stripMargin
+    )
+  }
+
+
+  def test_decl_overrides_def(): Unit = {
+    val baseText =
+      """
+        |trait Base {
+        |  def fun(): Unit = ()
+        |}
+      """.stripMargin
+
+    checkTextHasError(
+      s"""
+         |$baseText
+         |
+         |trait Impl extends Base {
+         |  def ${START}fun$END(): Unit
+         |}
+      """.stripMargin
+    )
+
+    testQuickFix(
+      s"""
+         |$baseText
+         |
+         |trait Impl extends Base {
+         |  def ${START}fun$END(): Unit
+         |}
+      """.stripMargin,
+      s"""
+         |$baseText
+         |
+         |trait Impl extends Base {
+         |  override def fun(): Unit
+         |}
+      """.stripMargin,
+      quickfixHint
     )
   }
 }

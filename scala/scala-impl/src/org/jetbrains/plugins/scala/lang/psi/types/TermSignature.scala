@@ -187,7 +187,8 @@ class TermSignature(_name: String,
 
   override def isAbstract: Boolean = namedElement match {
     case _: ScFunctionDeclaration                                                    => true
-    case _: ScFunctionDefinition                                                     => false
+    // function definitions in traits are technically still abstract
+    case definition: ScFunctionDefinition                                            => definition.containingClass.isInterface
     case _: ScFieldId                                                                => true
     case m: PsiModifierListOwner if m.hasModifierPropertyScala(PsiModifier.ABSTRACT) => true
     case _                                                                           => false
